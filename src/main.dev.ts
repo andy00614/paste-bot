@@ -11,9 +11,10 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, clipboard, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import schedule from 'node-schedule';
 import MenuBuilder from './menu';
 
 export default class AppUpdater {
@@ -104,6 +105,16 @@ const createWindow = async () => {
   mainWindow.webContents.on('new-window', (event, url) => {
     event.preventDefault();
     shell.openExternal(url);
+  });
+
+  let prePasteText = '';
+  schedule.scheduleJob('*/1 * * * * *', () => {
+    const pasteText = clipboard.readText();
+    if (prePasteText !== pasteText) {
+      mainWindow?.webContents.send('set-clipboard', pasteText);
+      mainWindow?.webContents.send('update-list');
+    }
+    prePasteText = pasteText;
   });
 
   // Remove this if your app does not use auto updates
