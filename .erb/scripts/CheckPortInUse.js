@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import detectPort from 'detect-port';
 
+console.log(process.env.PORT )
 const port = process.env.PORT || '1212';
 
 detectPort(port, (err, availablePort) => {
