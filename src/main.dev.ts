@@ -11,7 +11,9 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, clipboard, shell } from 'electron';
+import fs from 'fs';
+import md5 from 'md5';
+import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import schedule from 'node-schedule';
@@ -20,6 +22,7 @@ import installExtension, {
   REDUX_DEVTOOLS,
 } from 'electron-devtools-installer';
 import MenuBuilder from './menu';
+import { TextTableType } from './db/var';
 
 export default class AppUpdater {
   constructor() {
@@ -118,9 +121,29 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
+  ipcMain.on('set-paste', (e, item: TextTableType) => {
+    console.log(item.text);
+    clipboard.writeText(item.text);
+  });
+
   let prePasteText = '';
   schedule.scheduleJob('*/1 * * * * *', () => {
+    const imgText = clipboard.readImage();
+    const imgName = md5(imgText.toPNG());
+    console.log(imgText.toPNG());
+    fs.writeFile(
+      path.join(__dirname, `./assets/${imgName}.png`),
+      imgText.toPNG(),
+      (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('save success');
+        }
+      }
+    );
     const pasteText = clipboard.readText();
+    console.log(pasteText);
     if (prePasteText !== pasteText) {
       mainWindow?.webContents.send('set-clipboard', pasteText);
       mainWindow?.webContents.send('update-list');

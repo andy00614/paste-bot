@@ -23,7 +23,7 @@ export default class TextService extends BaseService {
     });
   }
 
-  getTextByWord(word: string) {
+  getTextByWord(word: string): Promise<TextTableType[]> {
     return this.connection.select({
       from: this.tableName,
       where: {
