@@ -23,6 +23,7 @@ import installExtension, {
 } from 'electron-devtools-installer';
 import MenuBuilder from './menu';
 import { TextTableType } from './db/var';
+import Clipbord from './utils/Clipbord';
 
 export default class AppUpdater {
   constructor() {
@@ -126,29 +127,10 @@ const createWindow = async () => {
     clipboard.writeText(item.text);
   });
 
-  let prePasteText = '';
+  const { saveImage, saveText } = new Clipbord(mainWindow);
   schedule.scheduleJob('*/1 * * * * *', () => {
-    const imgText = clipboard.readImage();
-    const imgName = md5(imgText.toPNG());
-    console.log(imgText.toPNG());
-    fs.writeFile(
-      path.join(__dirname, `./assets/${imgName}.png`),
-      imgText.toPNG(),
-      (err) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log('save success');
-        }
-      }
-    );
-    const pasteText = clipboard.readText();
-    console.log(pasteText);
-    if (prePasteText !== pasteText) {
-      mainWindow?.webContents.send('set-clipboard', pasteText);
-      mainWindow?.webContents.send('update-list');
-    }
-    prePasteText = pasteText;
+    saveImage();
+    saveText();
   });
 
   // Remove this if your app does not use auto updates

@@ -19,6 +19,8 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import TextService from './db/text_service';
 import { TextTableType } from './db/var';
 import styles from './app.scss';
+import { IpcEventName } from './var';
+import { ImgInfo } from './type';
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -32,13 +34,28 @@ const Hello = () => {
       const list = await textService.getTexts();
       setTextList(list);
     };
-    ipcRenderer.on('set-clipboard', async (_, text: string) => {
+
+    ipcRenderer.on(IpcEventName.setText, async (_, text: string) => {
       await textService.addText({
         text,
         date: new Date(),
+        type: 'text',
       });
       getListThenSet();
     });
+
+    ipcRenderer.on(IpcEventName.setImg, async (_, imgInfo: ImgInfo) => {
+      console.log(imgInfo);
+      const data = await textService.addText({
+        id: imgInfo.name,
+        date: new Date(),
+        type: 'image',
+        buffer: imgInfo.buffer,
+        text: 'img',
+      });
+      console.log('data is', data);
+    });
+
     getListThenSet();
   }, []);
   // useIpcRender();

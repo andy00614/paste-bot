@@ -11,9 +11,15 @@ const getDb = () => {
   const tableText: ITable = {
     name: TABLE_TEXT_NAME,
     columns: {
-      id: { primaryKey: true, autoIncrement: true },
+      id: {
+        primaryKey: true,
+        autoIncrement: true,
+        dataType: DATA_TYPE.String || DATA_TYPE.Number,
+      },
       text: { notNull: true, dataType: DATA_TYPE.String },
       date: { notNull: true, dataType: DATA_TYPE.DateTime },
+      type: { notNull: true, dataType: DATA_TYPE.String },
+      buffer: { notNull: false, dataType: DATA_TYPE.Object },
     },
   };
 

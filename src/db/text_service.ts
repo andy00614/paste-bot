@@ -1,3 +1,4 @@
+import { ImgInfo } from '../type';
 import BaseService from './base_service';
 import { TABLE_TEXT_NAME, TextTableType } from './var';
 
