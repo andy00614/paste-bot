@@ -21,6 +21,7 @@ import { TextTableType } from './db/var';
 import styles from './app.scss';
 import { IpcEventName } from './var';
 import { ImgInfo } from './type';
+import arrayBufferToBase64 from './utils/image';
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -36,24 +37,26 @@ const Hello = () => {
     };
 
     ipcRenderer.on(IpcEventName.setText, async (_, text: string) => {
-      await textService.addText({
-        text,
-        date: new Date(),
-        type: 'text',
-      });
-      getListThenSet();
+      if (text) {
+        await textService.addText({
+          date: new Date(),
+          type: 'text',
+          text,
+        });
+        getListThenSet();
+      }
     });
 
     ipcRenderer.on(IpcEventName.setImg, async (_, imgInfo: ImgInfo) => {
-      console.log(imgInfo);
-      const data = await textService.addText({
-        id: imgInfo.name,
-        date: new Date(),
-        type: 'image',
-        buffer: imgInfo.buffer,
-        text: 'img',
-      });
-      console.log('data is', data);
+      if (imgInfo.buffer.length > 0) {
+        const data = await textService.addText({
+          date: new Date(),
+          type: 'image',
+          buffer: imgInfo.buffer,
+          text: imgInfo.name,
+        });
+        getListThenSet();
+      }
     });
 
     getListThenSet();
@@ -87,7 +90,6 @@ const Hello = () => {
   };
 
   const handleClickItem = (item: TextTableType) => {
-    console.log(item);
     ipcRenderer.send('set-paste', item);
     handleClick();
   };
@@ -106,34 +108,43 @@ const Hello = () => {
           />
         </Grid>
         <div className={styles.content}>
-          <Grid item xs={6}>
-            <Snackbar
-              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-              open={open}
-              autoHideDuration={1000}
-              onClose={handleClose}
-            >
-              <Alert onClose={handleClose} severity="success">
-                复制成功
-              </Alert>
-            </Snackbar>
-            <ul>
-              {textList.map((item) => {
-                return (
-                  <li
-                    onClick={() => handleClickItem(item)}
-                    onKeyPress={handleOnKeyPress}
-                    key={item.id}
-                  >
-                    {item.text}
-                  </li>
-                );
-              })}
-            </ul>
-          </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}> */}
+          <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            open={open}
+            autoHideDuration={1000}
+            onClose={handleClose}
+          >
+            <Alert onClose={handleClose} severity="success">
+              复制成功
+            </Alert>
+          </Snackbar>
+          <ul>
+            {textList.map((item) => {
+              return (
+                <li
+                  onClick={() => handleClickItem(item)}
+                  onKeyPress={handleOnKeyPress}
+                  key={item.id}
+                  className={styles.pasteItem}
+                >
+                  {item.type === 'text' ? (
+                    <span>{item.text}</span>
+                  ) : (
+                    <img
+                      className={styles.pasteImage}
+                      src={arrayBufferToBase64(item.buffer as Buffer)}
+                      alt="tupian"
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          {/* </Grid> */}
+          {/* <Grid item xs={6}>
             <div>preview</div>
-          </Grid>
+          </Grid> */}
         </div>
       </Grid>
     </>

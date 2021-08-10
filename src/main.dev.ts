@@ -11,9 +11,14 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import fs from 'fs';
-import md5 from 'md5';
-import { app, BrowserWindow, clipboard, ipcMain, shell } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  ipcMain,
+  shell,
+  nativeImage,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import schedule from 'node-schedule';
@@ -123,14 +128,19 @@ const createWindow = async () => {
   });
 
   ipcMain.on('set-paste', (e, item: TextTableType) => {
-    console.log(item.text);
-    clipboard.writeText(item.text);
+    if (item.type === 'text') {
+      clipboard.writeText(item.text);
+    } else if (item.type === 'image') {
+      const imgPath = path.join(__dirname, `./assets/${item.text}.png`);
+      const nativeImg = nativeImage.createFromPath(imgPath);
+      clipboard.writeImage(nativeImg);
+    }
   });
 
   const { saveImage, saveText } = new Clipbord(mainWindow);
   schedule.scheduleJob('*/1 * * * * *', () => {
-    saveImage();
     saveText();
+    saveImage();
   });
 
   // Remove this if your app does not use auto updates

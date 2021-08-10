@@ -14,7 +14,6 @@ const getDb = () => {
       id: {
         primaryKey: true,
         autoIncrement: true,
-        dataType: DATA_TYPE.String || DATA_TYPE.Number,
       },
       text: { notNull: true, dataType: DATA_TYPE.String },
       date: { notNull: true, dataType: DATA_TYPE.DateTime },

@@ -18,6 +18,7 @@ export default class Clipbord {
   };
 
   saveText = () => {
+    // 复制完image好像会覆盖它，让它变为空
     const pasteText = clipboard.readText();
     if (this.prePasteText !== pasteText) {
       this.ipcMain2Render(IpcEventName.setText, pasteText);

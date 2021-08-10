@@ -4,6 +4,21 @@
 .content {
   display: flex;
   height: 100%;
+  width: 100%;
+  ul {
+    width: 100%;
+    .pasteItem {
+      padding: 10px 0;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      &:hover {
+        background: rgba(255, 71, 71, 0.3);
+      }
+      .pasteImage {
+        width: 220px;
+      }
+    }
+  }
 }
 /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
